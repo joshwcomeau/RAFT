@@ -1,9 +1,12 @@
-import expect from 'expect'
+import { expect } from 'chai';
 
-import message from 'src/index'
+import RAFT from 'src/index';
 
-describe('Module template', () => {
-  it('displays a welcome message', () => {
-    expect(message).toContain('Welcome to rafthrottle')
-  })
-})
+describe('RAFT', () => {
+  it('exposes only the designated public methods', () => {
+    const publicMethods = ['getListeners', 'addListener', 'removeListener'];
+    console.log(Object.keys(RAFT));
+    console.log(publicMethods);
+    expect(Object.keys(RAFT)).to.deep.equal(publicMethods);
+  });
+});

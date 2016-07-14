@@ -17,29 +17,92 @@
 
 const map = fn => arr => arr.map(fn);
 const flatten = arr => arr.reduce((memo, i) => (
-  Array.isArray(i) ? memo.concat(i) : i
+  Array.isArray(i) ? memo.concat(i) : [...memo, i]
 ), []);
+const flatMap = compose(flatten, map);
 const filter = fn => arr => arr.filter(fn);
 const keys = arr => Object.keys(arr);
 const compose = (a, b) => x => a(b(x));
 const prop = prop => obj => obj[prop];
-
+const pluck = compose(map, prop);
+const filterByProp = compose(filter, prop);
+const invokeAll = map(cb => cb());
 
 const RAFT = () => {
-  let registeredListeners = {
-    mousemove: {
-      triggeredThisFrame: false,
-      callbacks: []
+  let registeredListeners = [];
+  let running = false;
+  /*
+    [
+      {
+        eventType: 'mousemove',
+        triggeredThisFrame: false,
+        callbacks: [ () => {}, () => {} ]
+      }
+    ]
+  */
+
+  const tick
+
+  return {
+    addListener(eventType, ...callbacks) {
+      // Allow for an array of callbacks to be passed in
+      if (Array.isArray(callbacks[0])) {
+        callbacks = callbacks[0];
+      }
+
+      // Because we store registeredListeners as an array, we need to first
+      // check if we already have a listener for this eventType.
+      const listener = registeredListeners.find(listener => (
+        listener.eventType === eventType
+      ));
+
+      if (listener) {
+        listener.callbacks = [...listener.callbacks, callbacks];
+      } else {
+        registeredListeners.push({
+          eventType,
+          callbacks,
+          triggeredThisFrame: false,
+        });
+      }
+
+      if (!running) {
+        running = true;
+        tick();
+      }
+    },
+    removeListener(eventType) {
+      registeredListeners.filter(listener => listener.eventType !== eventType);
+
+      if (registeredListeners.length === 0) {
+        running = false;
+        window.cancelAnimationFrame()
+      }
     }
-  }
+  };
 
   // How it works:
   // Every tick, our main `run` function invokes. It finds all updated
-  const filterByProp = compose(filter, prop);
-  const filterTriggered = filterByProp('triggeredThisFrame');
-  const invokeAll = map(cb => cb());
+  registeredListeners
+    .filter(listener => listener.triggeredThisFrame)
+    .map(listener => {
+      listener.callbacks.map(cb => cb());
+      listener.triggeredThisFrame = false;
+    };
 
-  const invokeTriggered = map(invokeAll, filterTriggered(data));
+
+  const triggeredListeners = registeredListeners.filter(listener => (
+    listener.triggeredThisFrame
+  ));
+
+  triggeredListeners
+
+  const filterTriggered = filterByProp('triggeredThisFrame');
+  const triggeredListeners = filterTriggered(registeredListeners);
+
+  pluck('callbacks')(filterByProp('triggeredThisFrame')(registeredListeners))
+  invokeAll(callbacks);
+
 
   const invokeTriggered = map(filterTriggered(data)
 

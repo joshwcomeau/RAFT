@@ -1,0 +1,29 @@
+{
+  "name": "rafthrottle",
+  "version": "1.0.0",
+  "description": "Describe rafthrottle here",
+  "main": "lib/index.js",
+  "jsnext:main": "es6/index.js",
+  "files": [
+    "es6",
+    "lib",
+    "umd"
+  ],
+  "scripts": {
+    "build": "nwb build",
+    "clean": "nwb clean",
+    "test": "nwb test",
+    "test:watch": "nwb test --server"
+  },
+  "dependencies": {
+    "lodash.throttle": "^4.0.1",
+    "rxjs-es": "^5.0.0-beta.10"
+  },
+  "devDependencies": {
+    "nwb": "0.11.x"
+  },
+  "author": "",
+  "homepage": "",
+  "license": "MIT",
+  "repository": ""
+}

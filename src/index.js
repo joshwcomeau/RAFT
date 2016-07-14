@@ -28,7 +28,6 @@ const pluck = compose(map, prop);
 const filterByProp = compose(filter, prop);
 const invokeAll = map(cb => cb());
 
-
 const RaftFactory = () => {
   let registeredListeners = new Map();
   let running = false;
@@ -44,7 +43,7 @@ const RaftFactory = () => {
   const tick = () => {
     if (!running) { return; }
 
-    registeredListeners.forEach(listener => {
+    registeredListeners.forEach((listener, eventName) => {
       if (!listener.triggeredThisFrame) { return; }
 
       listener.callbacks.forEach(cb => cb());
@@ -63,6 +62,21 @@ const RaftFactory = () => {
     },
 
     addListener(eventType, ...callbacks) {
+      // We need to supply a string for eventType
+      if (typeof eventType !== 'string') {
+        throw new TypeError(`
+          Please supply a string to 'addListener' for the 'eventType' argument.
+          You supplied a ${typeof eventType}.
+        `, 'RAFT');
+      }
+
+      // We need at least 1 callback!
+      if (callbacks.length === 0) {
+        throw new Error(`
+          Please supply at least 1 callback when adding a listener.
+        `, 'RAFT');
+      }
+
       // Allow for an array of callbacks to be passed in
       if (Array.isArray(callbacks[0])) {
         callbacks = callbacks[0];
@@ -78,10 +92,10 @@ const RaftFactory = () => {
       }
       // Otherwise, create a new listener and push it to registeredListeners
       else {
-        registeredListeners.set([eventType, {
+        registeredListeners.set(eventType, {
           callbacks,
           triggeredThisFrame: false
-        }]);
+        });
       }
 
       if (!running) {
@@ -96,6 +110,11 @@ const RaftFactory = () => {
       if (registeredListeners.length === 0) {
         running = false;
       }
+    },
+
+    reset() {
+      registeredListeners = new Map();
+      running = false;
     }
   };
 

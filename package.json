@@ -25,7 +25,8 @@
     "eslint-plugin-jsx-a11y": "^1.2.0",
     "eslint-plugin-react": "^5.1.1",
     "karma-chai-plugins": "^0.7.0",
-    "nwb": "0.11.x"
+    "nwb": "0.11.x",
+    "sinon": "^1.17.4"
   },
   "author": "",
   "homepage": "",

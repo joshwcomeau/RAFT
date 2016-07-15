@@ -6,7 +6,7 @@ import RAFT from 'src/index';
 
 describe('removeListener', () => {
   before(() => {
-    sinon.spy(console, 'warn');
+    sinon.stub(console, 'warn');
   });
 
   after(() => {
@@ -39,5 +39,23 @@ describe('removeListener', () => {
 
     expect(RAFT.getListeners().size).to.equal(0);
     expect(RAFT.isRunning()).to.equal(false);
+  });
+
+  it('does not stop the loop if other listeners remain', () => {
+    RAFT
+      .addListener('mousemove', () => {})
+      .removeListener('scroll');
+
+    expect(RAFT.getListeners().size).to.equal(1);
+    expect(RAFT.isRunning()).to.equal(true);
+  });
+
+  it('is chainable', () => {
+    RAFT
+      .addListener('mousemove', () => {})
+      .removeListener('scroll')
+      .removeListener('mousemove');
+
+    expect(RAFT.getListeners().size).to.equal(0);
   });
 });

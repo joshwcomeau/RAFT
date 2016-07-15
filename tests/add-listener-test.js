@@ -61,12 +61,17 @@ describe('addListener', () => {
     expect(listeners.size).to.equal(1);
   });
 
-  it('starts the loop', () => {
-    expect(RAFT.isRunning()).to.equal(false);
+  it('merges callbacks for pre-existing listeners', () => {
+    const fn1 = () => {};
+    const fn2 = () => {};
+    const fn3 = () => {};
 
-    RAFT.addListener('mousemove', () => {});
+    RAFT.addListener('scroll', fn1, fn2);
+    RAFT.addListener('scroll', fn3);
 
-    expect(RAFT.isRunning()).to.equal(true);
+    const listener = RAFT.getListeners().get('scroll');
+
+    expect(listener.callbacks).to.deep.equal([fn1, fn2, fn3]);
   });
 
   it('is chainable, to add multiple listeners', () => {
@@ -77,5 +82,13 @@ describe('addListener', () => {
     const listeners = RAFT.getListeners();
 
     expect(listeners.size).to.equal(2);
+  });
+
+  it('starts the loop', () => {
+    expect(RAFT.isRunning()).to.equal(false);
+
+    RAFT.addListener('mousemove', () => {});
+
+    expect(RAFT.isRunning()).to.equal(true);
   });
 });

@@ -9,24 +9,8 @@
   fallback to lodash throttle.
 */
 
-// TODO: Unregister listener, and unbind to window if no listeners remain.
-
-// TODO: Consider rewriting with rxjs / rxjs DOM?
 
 // TODO: Perf tests
-
-const compose = (a, b) => x => a(b(x));
-const map = fn => arr => arr.map(fn);
-const flatten = arr => arr.reduce((memo, i) => (
-  Array.isArray(i) ? memo.concat(i) : [...memo, i]
-), []);
-const flatMap = compose(flatten, map);
-const filter = fn => arr => arr.filter(fn);
-const keys = arr => Object.keys(arr);
-const prop = prop => obj => obj[prop];
-const pluck = compose(map, prop);
-const filterByProp = compose(filter, prop);
-const invokeAll = map(cb => cb());
 
 const RaftFactory = () => {
   let registeredListeners = new Map();
@@ -53,14 +37,6 @@ const RaftFactory = () => {
   };
 
   return {
-    getListeners() {
-      // This is exposed primarily for testing purposes.
-      // We should not be exposing it in production.
-      // Solutions: Deep clone before exporting so it can't be modified,
-      // only exposing it when NODE_ENV === test...
-      return registeredListeners;
-    },
-
     addListener(eventType, ...callbacks) {
       // We need to supply a string for eventType
       if (typeof eventType !== 'string') {
@@ -115,7 +91,21 @@ const RaftFactory = () => {
     reset() {
       registeredListeners = new Map();
       running = false;
-    }
+
+      return this;
+    },
+
+    getListeners() {
+      // This is exposed primarily for testing purposes.
+      // We should not be exposing it in production.
+      // Solutions: Deep clone before exporting so it can't be modified,
+      // only exposing it when NODE_ENV === test...
+      return registeredListeners;
+    },
+
+    isRunning() {
+      return !!running;
+    },
   };
 
   // // How it works:

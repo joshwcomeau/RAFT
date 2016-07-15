@@ -8,7 +8,13 @@ describe('RAFT singleton', () => {
   });
 
   it('exposes only the designated public methods', () => {
-    const publicMethods = ['getListeners', 'addListener', 'removeListener', 'reset'];
+    const publicMethods = [
+      'addListener',
+      'removeListener',
+      'reset',
+      'getListeners',
+      'isRunning',
+    ];
     expect(Object.keys(RAFT)).to.deep.equal(publicMethods);
   });
 });

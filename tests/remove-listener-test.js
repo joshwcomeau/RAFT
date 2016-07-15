@@ -2,9 +2,11 @@ import { expect } from 'chai';
 
 import RAFT from 'src/index';
 
-describe('addListener', () => {
+describe('removeListener', () => {
   afterEach(() => {
-    RAFT.reset();
+    RAFT
+      .reset()
+      .addListeners('scroll', () => {});
   });
 
   it('raises an exception when called without arguments', () => {
@@ -67,19 +69,5 @@ describe('addListener', () => {
     RAFT.addListener('mousemove', () => {});
 
     expect(RAFT.isRunning()).to.equal(true);
-  });
-
-  it('is chainable, to add multiple listeners', () => {
-    RAFT
-      .addListener('scroll', () => {})
-      .addListener('resize', () => {});
-
-    const listeners = RAFT.getListeners();
-
-    expect(listeners.size).to.equal(2);
-  });
-
-  it('calls the listener with the event data', () => {
-
   })
 });

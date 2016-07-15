@@ -29,13 +29,20 @@ export const RaftFactory = () => {
   const tick = () => {
     if (!running) { return; }
 
-    registeredListeners.forEach((listener, eventName) => {
-      if (!listener.triggeredThisFrame) { return; }
+    // Oh, how I wish I could do this with immutability and map.
+    // Sadly, though, this function needs to be performant, and forEach is quick.
+    registeredListeners.forEach(listener => {
+      if (!listener.event) { return; }
 
-      listener.callbacks.forEach(cb => cb());
+      listener.callbacks.forEach(cb => {
+        cb(listener.event);
+      });
 
-      listener.triggeredThisFrame = false;
+      // eslint-disable-next-line no-param-reassign
+      delete listener.event;
     });
+
+    window.requestAnimationFrame(tick);
   };
 
   return {
@@ -67,12 +74,14 @@ export const RaftFactory = () => {
 
       if (listener) {
         // If we already have the listener, simply merge the callbacks in.
-        listener.callbacks = [...listener.callbacks, callbacks];
+        listener.callbacks = [...listener.callbacks, ...callbacks];
       } else {
         // Otherwise, create a new listener and push it to registeredListeners
-        registeredListeners.set(eventType, {
-          callbacks,
-          triggeredThisFrame: false,
+        const newListener = { callbacks };
+        registeredListeners.set(eventType, newListener);
+
+        window.addEventListener(eventType, e => {
+          newListener.event = e;
         });
       }
 

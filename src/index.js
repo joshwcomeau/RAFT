@@ -12,7 +12,9 @@
 
 // TODO: Perf tests
 
-const RaftFactory = () => {
+// NOTE: We are exporting the factory _only for test purposes_.
+// The default export, defined at the bottom of this file, is a singleton.
+export const RaftFactory = () => {
   let registeredListeners = new Map();
   let running = false;
   /*
@@ -55,6 +57,7 @@ const RaftFactory = () => {
 
       // Allow for an array of callbacks to be passed in
       if (Array.isArray(callbacks[0])) {
+        // eslint-disable-next-line no-param-reassign
         callbacks = callbacks[0];
       }
 
@@ -62,15 +65,14 @@ const RaftFactory = () => {
       // check if we already have a listener for this eventType.
       const listener = registeredListeners.get(eventType);
 
-      // If we already have the listener, simply merge the callbacks in.
       if (listener) {
+        // If we already have the listener, simply merge the callbacks in.
         listener.callbacks = [...listener.callbacks, callbacks];
-      }
-      // Otherwise, create a new listener and push it to registeredListeners
-      else {
+      } else {
+        // Otherwise, create a new listener and push it to registeredListeners
         registeredListeners.set(eventType, {
           callbacks,
-          triggeredThisFrame: false
+          triggeredThisFrame: false,
         });
       }
 
@@ -78,18 +80,35 @@ const RaftFactory = () => {
         running = true;
         tick();
       }
+
+      return this;
     },
 
     removeListener(eventType) {
-      registeredListeners.filter(listener => listener.eventType !== eventType);
+      if (typeof eventType === 'undefined') {
+        throw new TypeError('Please specify an event type to remove a listener', 'RAFT');
+      }
 
-      if (registeredListeners.length === 0) {
+      if (registeredListeners.get(eventType) === undefined) {
+        // eslint-disable-next-line no-console
+        return console.warn(`
+          Warning: Listener not found.
+          You tried to remove the event listener ${eventType},
+          but no such listener is registered.
+        `);
+      }
+
+      registeredListeners.delete(eventType);
+
+      if (registeredListeners.size === 0) {
         running = false;
       }
+
+      return this;
     },
 
     reset() {
-      registeredListeners = new Map();
+      registeredListeners.clear();
       running = false;
 
       return this;
@@ -246,7 +265,8 @@ const RaftFactory = () => {
 //   isBoundToWindow = true;
 // };
 
-// Export a singleton. We only ever want 1 instance of RAFT to exist.
+// Our default export is a singleton.
+// We only ever want 1 instance of RAFT to exist.
 const RAFT = RaftFactory();
 
 export default RAFT;

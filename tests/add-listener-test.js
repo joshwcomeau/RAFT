@@ -78,8 +78,4 @@ describe('addListener', () => {
 
     expect(listeners.size).to.equal(2);
   });
-
-  it('calls the listener with the event data', () => {
-
-  })
 });

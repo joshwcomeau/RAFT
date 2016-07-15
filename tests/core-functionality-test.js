@@ -2,36 +2,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import RAFT from 'src/index';
+import createEvent from 'test/utils/create-event';
 
 
-function createEvent(type, data) {
-  let ev;
-
-  try {
-    ev = new MouseEvent(type, {
-      clientX: data.x,
-      clientY: data.y,
-    });
-  } catch (err) {
-    ev = document.createEvent('MouseEvent');
-    ev.initMouseEvent(
-      type,
-      true, // canBubble
-      true, // cancelable
-      window, // view
-      0, // detail
-      data.x,
-      data.y,
-      data.x,
-      data.y
-    );
-
-  }
-
-  return ev;
-}
-
-describe.only('Core functionality', () => {
+describe('Core functionality', () => {
   describe('mousemove', () => {
     it('calls the listener with the event data', done => {
       const callback = sinon.spy();
@@ -47,9 +21,12 @@ describe.only('Core functionality', () => {
       window.dispatchEvent(ev);
 
       window.setTimeout(() => {
+        // While the event loop will have run many times in the 100ms delay,
+        // the callback should only have been invoked once, because there was
+        // only a single mousemove event.
         expect(callback.callCount).to.equal(1);
-        const cbEvent = callback.args[0][0];
 
+        const cbEvent = callback.args[0][0];
         expect(cbEvent.x).to.equal(x);
         expect(cbEvent.y).to.equal(y);
 

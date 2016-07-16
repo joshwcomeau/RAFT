@@ -51,7 +51,7 @@ describe('Core functionality', () => {
     }, 100);
   });
 
-  it('invokes multiple listeners IF an event has been triggered', done => {
+  it('invokes only the listeners that have been triggered', done => {
     const mousemoveCallback = sinon.spy();
     const clickCallback = sinon.spy();
     const scrollCallback = sinon.spy();
@@ -71,5 +71,47 @@ describe('Core functionality', () => {
 
       done();
     }, 100);
+  });
+
+  it('invokes at most every ~16ms', done => {
+    let t1 = performance.now();
+    let t2;
+    let durations = [];
+
+    // Set up a listener to log the time since the previous cb application.
+    RAFT.addListener('mousemove', () => {
+      t2 = performance.now();
+      durations.push(t2 - t1);
+      t1 = t2;
+    });
+
+    // Set up a loop to trigger mousemoves every 5ms.
+    // The idea here is that the event will be triggered multiple times per
+    // animationFrame, and we're hoping that the listener is only Invoked
+    // every ~16.6ms.
+    const totalIterations = 50;
+    let currentIteration = 0;
+    const mousemoveLoop = window.setInterval(() => {
+      createAndDispatchEvent('mousemove', {
+        x: Math.round(Math.random() * 100),
+        y: Math.round(Math.random() * 100),
+      });
+
+      currentIteration++;
+      if (currentIteration >= totalIterations) {
+        window.clearInterval(mousemoveLoop);
+        // Exclude the very first duration captured.
+        // This is because the first animationFrame might happen right away,
+        // since there was no reason to wait beforehand.
+        durations = durations.slice(1);
+
+        const durationSum = durations.reduce((total, num) => total + num);
+        const durationAverage = durationSum / durations.length;
+
+        expect(durationAverage).to.be.within(15.5, 17.5);
+
+        done();
+      }
+    }, 5);
   });
 });

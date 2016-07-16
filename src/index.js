@@ -42,7 +42,12 @@ export const RaftFactory = () => {
       delete listener.event;
     });
 
-    window.requestAnimationFrame(tick);
+    if (window.requestAnimationFrame) {
+      window.requestAnimationFrame(tick);
+    } else {
+      window.setTimeout(tick, 17)
+    }
+
   };
 
   return {
@@ -135,28 +140,6 @@ export const RaftFactory = () => {
       return !!running;
     },
   };
-
-  // // How it works:
-  // // Every tick, our main `run` function invokes. It finds all updated
-  //
-  // const triggeredListeners = registeredListeners.filter(listener => (
-  //   listener.triggeredThisFrame
-  // ));
-  //
-  // triggeredListeners
-  //
-  // const filterTriggered = filterByProp('triggeredThisFrame');
-  // const triggeredListeners = filterTriggered(registeredListeners);
-  //
-  // pluck('callbacks')(filterByProp('triggeredThisFrame')(registeredListeners))
-  // invokeAll(callbacks);
-  //
-  //
-  // const invokeTriggered = map(filterTriggered(data)
-  //
-  // registeredCallbacks
-  //   .filter(listener => listener.triggeredThisFrame)
-  //   .map(listener => listener.callbacks.forEach(cb => cb()));
 }
 
 

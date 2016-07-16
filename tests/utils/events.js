@@ -1,4 +1,6 @@
-export default function createEvent(type, { x, y }) {
+import compose from '../../src/utils/compose';
+
+export function createEvent(type, { x, y } = {}) {
   let ev;
 
   try {
@@ -26,3 +28,5 @@ export default function createEvent(type, { x, y }) {
 
   return ev;
 }
+
+export const createAndDispatchEvent = compose(window.dispatchEvent, createEvent);

@@ -21,10 +21,7 @@ describe('addListener', () => {
 
     const listener = RAFT.getListeners().get('mousemove');
 
-    expect(listener).to.deep.equal({
-      triggeredThisFrame: false,
-      callbacks: [fn],
-    });
+    expect(listener).to.deep.equal({ callbacks: [fn] });
   });
 
   it('accepts multiple callbacks', () => {
@@ -34,10 +31,7 @@ describe('addListener', () => {
 
     const listener = RAFT.getListeners().get('scroll');
 
-    expect(listener).to.deep.equal({
-      triggeredThisFrame: false,
-      callbacks,
-    });
+    expect(listener).to.deep.equal({ callbacks });
   });
 
   it('accepts an array of callbacks', () => {
@@ -46,10 +40,7 @@ describe('addListener', () => {
     RAFT.addListener('resize', callbacks);
     const listener = RAFT.getListeners().get('resize');
 
-    expect(listener).to.deep.equal({
-      triggeredThisFrame: false,
-      callbacks,
-    });
+    expect(listener).to.deep.equal({ callbacks });
   });
 
   it('adds a single listener when multiple callbacks are provided', () => {
